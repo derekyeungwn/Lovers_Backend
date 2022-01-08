@@ -2,9 +2,9 @@ import datetime, json
 from flask import request, Response, Blueprint
 from .db import db
 
-datings = Blueprint('datings', __name__)
+dating_bp = Blueprint('datings', __name__)
 
-@datings.route('/api/v1/datings/', methods=['GET'])
+@dating_bp.route('/', methods=['GET'])
 def get_all_datings():
     output = []    
     for data in db.datings.find():
@@ -18,20 +18,20 @@ def get_all_datings():
         output.append(thisdict)
     return Response(json.dumps({'data' : output}), mimetype='application/json', status=200)
 
-@datings.route('/api/v1/datings/', methods=['POST'])
+@dating_bp.route('/', methods=['POST'])
 def add_dating():
     #print(json.dumps(request.json['data'], indent = 3))
     db.datings.insert_one(request.json['data'])
     return Response(json.dumps({'Status' : 'Succesfully Inserted'}), mimetype='application/json', status=200)
 
-@datings.route('/api/v1/datings/<id>', methods=['DELETE'])
+@dating_bp.route('/<id>', methods=['DELETE'])
 def delete_dating(id):
     filter = {}
     filter['id'] = int(id)
     db.datings.delete_one(filter)
     return Response(json.dumps({'Status' : 'Succesfully Deleted'}), mimetype='application/json', status=200)
 
-@datings.route('/api/v1/datings/<id>', methods=['PUT'])
+@dating_bp.route('/<id>', methods=['PUT'])
 def update_dating(id):
     filter = {}
     filter['id'] = int(id)
