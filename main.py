@@ -1,10 +1,12 @@
 from flask import Flask, render_template
 from resources.dating import dating_bp
+from resources.appCode import appCode_bp
 from web.web import web_bp
 
 app = Flask(__name__)
 
 app.register_blueprint(dating_bp, url_prefix='/api/v1/datings')
+app.register_blueprint(appCode_bp, url_prefix='/api/v1/appCode')
 app.register_blueprint(web_bp, url_prefix='/')
 
 if __name__ == "__main__":
