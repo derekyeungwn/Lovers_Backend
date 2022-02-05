@@ -5,8 +5,8 @@ from .db import db
 appCode_bp = Blueprint('appCode', __name__)
 
 @appCode_bp.route('/', methods=['GET'])
-def getAppCode():
-    output = []    
+def getAppCode(): 
+    output = []
     for data in db.app_code.find():
         thisdict = {}
         for item in data:            
