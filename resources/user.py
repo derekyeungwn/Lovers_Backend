@@ -1,14 +1,13 @@
 import datetime, json
-from re import T
 from flask import request, Response, Blueprint
 from flask_jwt_extended import create_access_token
-import datetime
 from .db import db
+from .db_util import getNextSequenceValue
 
-login_bp = Blueprint('login', __name__)
+user_bp = Blueprint('users', __name__)
 
-@login_bp.route('/', methods=['PUT'])
-def login():
+@user_bp.route('/', methods=['POST'])
+def add_user():
     try:
         output = {}
         response = {}
@@ -16,24 +15,24 @@ def login():
         email = request.json.get('email', None)
         password = request.json.get('password', None)
 
-        filter = {}
-        filter['email'] = email
-        filter['password'] = password
-        result = db.users.find_one(filter)
-
-        if not result:
+        if db.users.find_one({'email': email}, {'_id': 1}) is not None:
             output['success'] = False
-            output['error_message'] = 'Wrong email or password'
+            output['error_message'] = '這個電郵巳被註冊了' 
             return Response(json.dumps(output), mimetype='application/json', status=400)
+        
+        data = {}
+        data['email'] = email
+        data['password'] = password
+        data['user_id'] = str(getNextSequenceValue('users'))
+        db.users.insert_one(data)
 
         expires = datetime.timedelta(days=365)
-        access_token = create_access_token(identity=result['user_id'], expires_delta=expires)
+        access_token = create_access_token(identity=data['user_id'], expires_delta=expires)
         output['success'] = True
         response['access_token'] = access_token
+        response['user_id'] = str(data['user_id'])
         output['response'] = response
-
-        print(access_token)
-
+        
     except Exception as e:
         output['success'] = False
         output['error_message'] = 'Internal Server Error'
