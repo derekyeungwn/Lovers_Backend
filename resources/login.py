@@ -1,9 +1,11 @@
 import datetime, json
-from re import T
+
 from flask import request, Response, Blueprint
 from flask_jwt_extended import create_access_token
 import datetime
-from .db import db
+import hashlib
+
+from util.db import db
 
 login_bp = Blueprint('login', __name__)
 
@@ -14,11 +16,15 @@ def login():
         response = {}
 
         email = request.json.get('email', None)
-        password = request.json.get('password', None)
+        password = request.json.get('password', None)        
+
+        m = hashlib.md5()
+        m.update(password.encode('utf-8'))
+        hashValue = m.hexdigest()
 
         filter = {}
         filter['email'] = email
-        filter['password'] = password
+        filter['password'] = hashValue
         result = db.users.find_one(filter)
 
         if not result:

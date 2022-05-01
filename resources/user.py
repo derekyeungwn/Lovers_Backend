@@ -1,8 +1,10 @@
 import datetime, json
 from flask import request, Response, Blueprint
 from flask_jwt_extended import create_access_token
-from .db import db
-from .db_util import getNextSequenceValue
+import hashlib
+
+from util.db import db
+from util.db import getNextSequenceValue
 
 user_bp = Blueprint('users', __name__)
 
@@ -20,9 +22,13 @@ def add_user():
             output['error_message'] = '這個電郵巳被註冊了' 
             return Response(json.dumps(output), mimetype='application/json', status=400)
         
+        m = hashlib.md5()
+        m.update(password.encode('utf-8'))
+        hashValue = m.hexdigest()
+
         data = {}
         data['email'] = email
-        data['password'] = password
+        data['password'] = hashValue
         data['user_id'] = str(getNextSequenceValue('users'))
         db.users.insert_one(data)
 

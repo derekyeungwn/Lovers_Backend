@@ -2,7 +2,7 @@ import datetime, json
 import this
 from flask import request, Response, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .db import db
+from util.db import db
 
 appCode_bp = Blueprint('appCode', __name__)
 
